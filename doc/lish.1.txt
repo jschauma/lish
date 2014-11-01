@@ -1,0 +1,116 @@
+LISH(1)			NetBSD General Commands Manual		       LISH(1)
+
+NAME
+     lish -- a limited shell
+
+SYNOPSIS
+     lish [-Vx] [-c command]
+
+DESCRIPTION
+     lish implements a very simple, restricted command-line interpreter or
+     shell.  Its goal is to allow execution of only a fixed set of commands,
+     either interactively or read from standard in.
+
+OPTIONS
+     The following options are supported by lish:
+
+     -V		 Print version number and exit.
+
+     -c command	 Execute the given command.
+
+     -x		 Enable tracing: Write each command to standard error, pre-
+		 ceeded by '+'.
+
+DETAILS
+     lish is intended to allow severely restricted accounts to execute a lim-
+     ited set of commands.  Its primary use case is non-interactive, and so
+     lish does not implement many of the niceties available in common shells.
+     Most notably, the features lish is intentionally not providing include
+     I/O redirection, command-line history editing, and logical control opera-
+     tors.
+
+     When lish is invoked, it reads its configuration files (see section
+     CONFIGURATION(FILES)) to identify the commands it is allowed to execute.
+     It then reads commands from standard in, checks them against the list
+     and, if they are allowed, executes them.  Multiple commands can be speci-
+     fied on a single line by separating them with a semicolon (';').  Note
+     that any authorized commands following an unauthorized command in a com-
+     mand sequence will still be executed.
+
+     In addition to restricting the commands a user can execute, lish also
+     logs their invocation and whether or not the command was executed.
+
+INPUT
+     lish will determine which commands to execute (if they are allowed) in
+     the following order:
+
+     SSH_ORIGINAL_COMMAND   If this environment variable is set, lish will
+			    interpret is as the command(s) to execute.	This
+			    is to allow lish to be used in sshd(8) context via
+			    the 'command=/usr/bin/lish' or 'ForceCommand'
+			    restrictions.
+
+     -c command		    Commands specified via the -c flag.	 This is the
+			    typical invocation for a non-interactive login
+			    shell from ssh(1).
+
+     stdin		    If none of the above apply, lish will start in
+			    interactive mode and read commands from standard
+			    in.
+
+BUILTINS
+     lish contains the following builtins, which are always allowed:
+
+     cd	   Change the current working directory.
+
+     exit  Exit the current shell.
+
+CONFIGURATION FILES
+     lish first reads the file /etc/lishrc followed by the file
+     /etc/lish/$USER (where $USER is the username of the user invoking lish)
+     if it exists.
+
+     The configuration file syntax is, like lish itself, intentionally sim-
+     plistic:
+
+     o	 the file is processed one line at a time
+
+     o	 anything including and following a '#' is ignored
+
+     o	 leading and trailing whitespace is ignored
+
+     o	 each line may specify a single program with any optional command-line
+	 flags
+
+     o	 commands not beginning with a '/' are resolved using the fixed PATH
+	 environment variable (see ENVIRONMENT)
+
+     o	 to allow any and all command-line options, a '*' may be used
+
+     o	 normal shell meta characters have no significance in lish
+
+     o	 input/output redirection is not supported
+
+ENVIRONMENT
+     lish uses the SSH_ORIGINAL_COMMAND environment variable, as noted in the
+     INPUT section.  At startup, lish will clear the environment and explic-
+     itly set the following environment variables:
+
+     PATH   /bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+
+     USER   the output of getlogin(2)
+
+     SHELL  the path of the executable
+
+EXIT STATUS
+     lish returns the exit status of the last command it executed or a status
+     of 127 if the given command was not allowed.
+
+SEE ALSO
+     bash(1), ksh(1), syslog(3)
+
+HISTORY
+     lish was originally written by Jan Schaumann <jschauma@netmeister.org> in
+     October 2014.
+
+NetBSD 5.0		       October 28, 2014			    NetBSD 5.0

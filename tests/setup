@@ -1,0 +1,59 @@
+LISH=../src/lish
+
+TDIR="$(mktemp -d ${TMPDIR:-/tmp}/lish.test.XXXX)"
+STDERR="${TDIR}/stderr"
+
+if [ ! -x ${LISH} ]; then
+	echo "${LISH} not found.  Please run 'make build' first." >&2
+	exit 1
+fi
+
+begin() {
+	echo "=> Now testing: ${NAME}..."
+}
+
+cleanup() {
+	rm -fr ${TDIR}
+	if [ -n "${CREATED}" ]; then
+		sudo rm -f /etc/lishrc
+	fi
+}
+
+note() {
+	echo "==> ${1}"
+}
+
+end() {
+	echo "=> ok"
+}
+
+fail() {
+	echo "=> failed."
+	echo "Stderr follows:"
+	cat ${STDERR}
+	exit 1
+}
+
+setup_lishrc() {
+
+	echo "=> Creating ${TDIR}/lishrc..."
+
+	if [ -f /etc/lishrc -o -h /etc/lishrc ]; then
+		echo "/etc/lishrc exists.  Please remove while testing." >&2
+		exit 1
+	fi
+
+	umask=$(umask)
+	umask 022
+	sudo ln -s ${TDIR}/lishrc /etc/lishrc
+	umask ${umask}
+	CREATED="yes"
+
+	cat >${TDIR}/lishrc <<EOF
+date +%Y
+du *
+pwd
+EOF
+}
+
+trap cleanup 0

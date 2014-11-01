@@ -1,0 +1,10 @@
+* Tue Oct 28 2014 - jschauma@netmeister.org
+- 0.2
+-  ensure SSH_ORIGINAL_COMMAND is only used if set and doesn't override
+   any otherwise given '-c' commands
+-  gofmt via drobinson
+-  log current working directory when executing commands
+
+* Tue Oct 28 2014 - jschauma@netmeister.org
+- 0.1
+-  Hello World!

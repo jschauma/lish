@@ -1,0 +1,162 @@
+.\"	Copyright (c) 2014 Twitter, Inc.
+.\"	Originally written by Jan Schaumann <jschauma@netmeister.org> in
+.\"	October 2014.
+.\"
+.Dd October 28, 2014
+.Dt LISH 1
+.Os
+.Sh NAME
+.Nm lish
+.Nd a limited shell
+.Sh SYNOPSIS
+.Nm
+.Op Fl Vx
+.Op Fl c Ar command
+.Sh DESCRIPTION
+.Nm
+implements a very simple, restricted command-line interpreter or shell.
+Its goal is to allow execution of only a fixed set of commands, either
+interactively or read from standard in.
+.Pp
+.Sh OPTIONS
+The following options are supported by
+.Nm :
+.Bl -tag -width _c_command
+.It Fl V
+Print version number and exit.
+.It Fl c Ar command
+Execute the given command.
+.It Fl x
+Enable tracing:
+Write each command to standard error, preceeded by '+'.
+.El
+.Sh DETAILS
+.Nm
+is intended to allow severely restricted accounts to execute a limited set
+of commands.
+Its primary use case is non-interactive, and so
+.Nm
+does not implement many of the niceties available in common shells.
+Most notably, the features
+.Nm
+is intentionally not providing include I/O redirection, command-line
+history editing, and logical control operators.
+.Pp
+When
+.Nm
+is invoked, it reads its configuration files (see section
+.Xr CONFIGURATION FILES )
+to identify the commands it is allowed to execute.
+It then reads commands from standard in, checks them against the list and,
+if they are allowed, executes them.
+Multiple commands can be specified on a single line by separating them
+with a semicolon (';').
+Note that any authorized commands following an unauthorized command in a
+command sequence will still be executed.
+.Pp
+In addition to restricting the commands a user can execute,
+.Nm
+also logs their invocation and whether or not the command was executed.
+.Sh INPUT
+.Nm
+will determine which commands to execute (if they are allowed) in the
+following order:
+.Bl -tag -width _SSH_ORIGINAL_COMMAND
+.It SSH_ORIGINAL_COMMAND
+If this environment variable is set,
+.Nm
+will interpret is as the command(s) to execute.
+This is to allow
+.Nm
+to be used in
+.Xr sshd 8
+context via the 'command=/usr/bin/lish' or 'ForceCommand' restrictions.
+.It Fl c Ar command
+Commands specified via the
+.Fl c
+flag.
+This is the typical invocation for a non-interactive login shell from
+.Xr ssh 1 .
+.It stdin
+If none of the above apply,
+.Nm
+will start in interactive mode and read commands from standard in.
+.El
+.Sh BUILTINS
+.Nm
+contains the following builtins, which are always allowed:
+.Bl -tag -width exit
+.It cd
+Change the current working directory.
+.It exit
+Exit the current shell.
+.El
+.Sh CONFIGURATION FILES
+.Nm
+first reads the file
+.Ar /etc/lishrc
+followed by the file
+.Ar /etc/lish/$USER
+(where $USER is the username of the user invoking
+.Nm )
+if it exists.
+.Pp
+The configuration file syntax is, like
+.Nm
+itself, intentionally simplistic:
+.Bl -bullet
+.It
+the file is processed one line at a time
+.It
+anything including and following a '#' is ignored
+.It
+leading and trailing whitespace is ignored
+.It
+each line may specify a single program with any optional command-line
+flags
+.It
+commands not beginning with a '/' are resolved using the fixed PATH
+environment variable (see
+.Xr ENVIRONMENT )
+.It
+to allow any and all command-line options, a '*' may be used
+.It
+normal shell meta characters have no significance in
+.Nm
+.It
+input/output redirection is not supported
+.El
+.Sh ENVIRONMENT
+.Nm
+uses the
+.Ar SSH_ORIGINAL_COMMAND
+environment variable, as noted in the
+.Xr INPUT
+section.
+At startup,
+.Nm
+will clear the environment and explicitly set the following environment
+variables:
+.Bl -tag -width _PATH
+.It PATH
+/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+.It USER
+the output of
+.Xr getlogin(2)
+.It SHELL
+the path of the executable
+.El
+.Sh EXIT STATUS
+.Nm
+returns the exit status of the last command it executed or a status of 127
+if the given command was not allowed.
+.Sh SEE ALSO
+.Xr bash 1 ,
+.Xr ksh 1 ,
+.Xr syslog 3
+.Sh HISTORY
+.Nm
+was originally written by
+.An Jan Schaumann
+.Aq jschauma@netmeister.org
+in October 2014.

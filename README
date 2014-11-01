@@ -1,0 +1,49 @@
+lish -- a limited shell
+=======================
+lish(1) is a very simple, restricted command-line interpreter or shell.
+Its goal is to allow the execution of only a fixed set of commands read
+from a simple configuration file.  lish(1) is suitable to be used as the
+ssh(8) ForceCommand or via the 'command=' restriction in an ssh public
+key.
+
+Please see https://www.netmeister.org/blog/lish.html and the lish(1)
+manual page on
+https://raw.githubusercontent.com/jschauma/lish/master/doc/lish.1.txt for
+details.
+
+
+Supported Platforms
+===================
+lish(1) is written in Go and should work on most Unix-like platforms.
+
+lish(1) was tested on the following systems:
+
+- CentOS release 5.10
+- CentOS release 6.5
+- Mac OS X 10.10
+
+
+How to install lish(1)
+======================
+'make install'
+
+The simplistic provided Makefile will build lish(1) and then copy it
+together with its manual page under /usr/local or wherever PREFIX points
+to.
+
+
+How to use lish(1)
+==================
+You need to create a configuration file in /etc/lishrc containing the
+commands that all users of lish(1) are allowed to execute.
+
+If you wish to allow additional commands for the user 'jdoe', you can also
+create an additional file /etc/lish/jdoe.
+
+Please see the manual page of lish(1) for the configuration file syntax.
+
+If you plan on using lish(1) only in combination with sshd(8)'s
+ForceCommand (or 'command=' restrictions in an ssh pubkey), then you're
+all set.  If you plan on assigning lish(1) as the login shell for a user,
+you probably need to also update /etc/shells to include /usr/bin/lish (or
+wherever you may have installed lish(1)).
