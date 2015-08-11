@@ -29,13 +29,13 @@ DETAILS
      I/O redirection, command-line history editing, and logical control opera-
      tors.
 
-     When lish is invoked, it reads its configuration files (see section
-     CONFIGURATION(FILES)) to identify the commands it is allowed to execute.
-     It then reads commands from standard in, checks them against the list
-     and, if they are allowed, executes them.  Multiple commands can be speci-
-     fied on a single line by separating them with a semicolon (';').  Note
-     that any authorized commands following an unauthorized command in a com-
-     mand sequence will still be executed.
+     When lish is invoked, it reads its configuration files (see section CON-
+     FIGURATION FILES) to identify the commands it is allowed to execute.  It
+     then reads commands from standard in, checks them against the list and,
+     if they are allowed, executes them.  Multiple commands can be specified
+     on a single line by separating them with a semicolon (';').  Note that
+     any authorized commands following an unauthorized command in a command
+     sequence will still be executed.
 
      In addition to restricting the commands a user can execute, lish also
      logs their invocation and whether or not the command was executed.
@@ -113,4 +113,4 @@ HISTORY
      lish was originally written by Jan Schaumann <jschauma@netmeister.org> in
      October 2014.
 
-NetBSD 5.0		       October 28, 2014			    NetBSD 5.0
+NetBSD 5.0			August 11, 2015			    NetBSD 5.0
